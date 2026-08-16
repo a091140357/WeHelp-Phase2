@@ -1,6 +1,5 @@
 const selector = document.getElementById("selector");
 const dropDownMenu = document.getElementById("dropDownMenu");
-// const inputSelect = document.getElementById("selector")
 
 //點擊選單
 selector.addEventListener("click",async function(event){

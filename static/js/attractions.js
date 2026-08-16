@@ -13,6 +13,21 @@ let currentCategory = "";
 let currentKeyword = "";
 let isLoding = false;
 
+const observer = new IntersectionObserver(async(entrise)=>{
+    if(entrise[0].isIntersecting){
+        if(isLoding || currentPage === null){
+            return;
+        }
+        isLoding = true;
+        const result = await getPageData(currentPage, currentCategory, currentKeyword);
+        if(result){
+            rendercard(result.data);
+            currentPage = result.nextPage;
+        }
+        isLoding = false;
+    }
+});
+
 const leftArrowImg = document.querySelector(".leftArrow");
 const rightArrowImg = document.querySelector(".rightArrow");
 const imgDark = "/static/imgs/暗箭頭.png";
@@ -86,12 +101,17 @@ async function getPageData(page, category = "", keyword = ""){
 }
 
 async function init() {
+    isLoding = true; //避免observer在初始化開始時就在運作
     const result = await getPageData(currentPage, currentCategory, currentKeyword);
     if (result) {
             rendercard(result.data);
             currentPage = result.nextPage;
         }
         isLoding = false;
+
+        if (scrollSensor) {
+        observer.observe(scrollSensor);
+    }
 
     try{
         const mrtResponse = await fetch("/api/mrts");
@@ -160,25 +180,6 @@ searchBtn.addEventListener("click", async function(event){
         observer.observe(scrollSensor);
     }
 });
-
-const observer = new IntersectionObserver(async(entrise)=>{
-    if(entrise[0].isIntersecting){
-        if(isLoding || currentPage === null){
-            return;
-        }
-        isLoding = true;
-        const result = await getPageData(currentPage, currentCategory, currentKeyword);
-        if(result){
-            rendercard(result.data);
-            currentPage = result.nextPage;
-        }
-        isLoding = false;
-    }
-});
-if (scrollSensor) {
-    observer.observe(scrollSensor);
-}
-
 
 leftArrowBtn.addEventListener("click",()=>{
     mrtListContainer.scrollBy({left:-300, behavior:"smooth"});
