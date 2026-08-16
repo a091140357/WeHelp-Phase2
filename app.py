@@ -1,5 +1,6 @@
 from fastapi import *
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 import os
 import json
 import mysql.connector
@@ -76,8 +77,11 @@ def get_page_data(request:Request, page:int = 0, category:str = None, keyword:st
 		#拿取資料池
 		connection = db_pool.get_connection()
 		cursor = connection.cursor(dictionary = True)
+		
+		if category and keyword:
+			cursor.execute("SELECT * FROM attractions WHERE category = %s AND (mrt = %s OR name LIKE %s) ORDER BY id LIMIT %s OFFSET %s", (category, keyword, f"%{keyword}%", limit, offset))
 
-		if category: #如果有使用category查詢，完全對比category與資料庫的category資料
+		elif category: #如果有使用category查詢，完全對比category與資料庫的category資料
 			cursor.execute("select * from attractions where category = %s order by id limit %s offset %s ",(category,limit, offset))
 			
 		elif keyword: #如果有使用keyword查詢，完全對比keyword與資料庫的mrt資料或模糊對比category與資料庫的category資料
@@ -227,3 +231,7 @@ def get_mrts_list():
 			cursor.close()
 		if connection is not None and connection.is_connected(): #如果一開始就沒連到或中間連線斷掉，就關閉資料池連線
 			connection.close()
+
+
+
+app.mount("/static", StaticFiles(directory = "static"), name = "static")

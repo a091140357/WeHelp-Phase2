@@ -4,8 +4,72 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Index</title>
+  <link rel = "stylesheet" href = "/static/css/index.css">
+  <script src = "/static/js/attractions.js"defer></script>
+  <script src = "/static/js/drop-down-menu.js"defer></script><!-- 接收後端景點分類資料 -->
+
 </head>
 <body>
-  
+  <header>
+    <div class = "navigation">
+      <div class = "title">台北一日遊</div>
+      <nav class = "navBar">
+        <ul>
+          <li>預訂行程</li>
+          <li>登入/註冊</li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class = "heroSection">
+      <picture>
+        <source media = "(max-width: 360px)" srcset = "/static/imgs/台北101圖片.png">
+        <img class="heroImg" src="/static/imgs/[desktop] hero section.png" alt="台北101圖片">
+      </picture>
+      <div class = "heroContent">
+        <div class = heroContentDiv>
+          <div class = "slogan">
+            <div class = "sloganText1">輕鬆享受台北一日悠閒</div>
+            <div class = "sloganText2">探索每個角落，體驗城市的深度旅遊行程</div>
+          </div>
+          <div class = "search">
+            <div class = "searchBar">
+              <div class = "selector" id = "selector">全部分類 ▼</div>
+              <div class = "dropDownMenu" id = "dropDownMenu"></div>
+              <input id = "inputSelect" type = "text" class = "input" placeholder = "輸入景點名稱查詢">
+              <div class = "searchBtn" id = "searchBtn">
+                <img class = "searchIcon" src = "/static/imgs/搜尋放大鏡.png">
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <section>
+      <div id = "attractionSection" class = "attractionSection">
+        <div id = "listBar" class = "listBar">
+          <div id = "leftContainer">
+            <img src = "/static/imgs/暗箭頭.png" class = "leftArrow">
+          </div>
+          <div id = "contanier" class = "contanier">
+            <div id = "listItemContainer" class = "listItemContainer"></div>
+          </div>
+          <div id = "rightContainer">
+            <img src = "/static/imgs/暗箭頭.png" class = "rightArrow">
+          </div>
+        </div>
+        <div class = "attractions">
+          <div class = "attractionsGroup" id = "attractionsGroup"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id = "scrollSensor" style = "height: 10px;"></div>
+
+  <footer class = "footer">
+    <span class = "footerText">COPYRIGHT © 2021 台北一日遊</span>
+  <footer>
+
 </body>
 </html>
