@@ -31,6 +31,7 @@ nav li{
     color:#448899;
     padding-left: 10px;
     padding-right: 10px;
+    cursor:pointer;
 }
 .navBar{
     display: flex;
@@ -177,6 +178,7 @@ nav li{
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
+    cursor:pointer;
 }
 .attractionsGroup{
     gap:30px;

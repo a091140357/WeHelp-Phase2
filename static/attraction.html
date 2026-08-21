@@ -4,8 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attraction</title>
+  <link rel = "stylesheet" href = "/static/css/attraction.css">
+  <script src = "/static/js/load-attraction.js" async></script>
 </head>
 <body>
-  
+  <header>
+    <div class = "navigation">
+      <div class = "title">台北一日遊</div>
+      <nav class = "navBar">
+        <ul>
+          <li>預訂行程</li>
+          <li>登入/註冊</li>
+        </ul>
+      </nav>
+    </div>
+    <div class = "navLine"></div>
+  </header>
+
+  <main>
+    <section class = "main">
+      <div id = "pictureCurrent" class = "pictureCurrent">
+        <img id = attractionPic class = "attractionPic">
+        <div id = "indicatorBar" class = "indicatorBar"></div>
+        <div class = "leftArrowContainer" id = "leftArrowContainer">
+          <img src = "/static/imgs/暗箭頭.png" class = "leftArrow" id = "leftArrow">
+        </div>
+        <div class = "rightArrowContainer" id = "rightArrowContainer">
+          <img src = "/static/imgs/暗箭頭.png" class = "rightArrow" id = "rightArrow">
+        </div>
+      </div>
+      <div class = "profile">
+        <div id = "attractionName" class = "attractionName"></div>
+        <div id = "categoryMrt" class = "categoryMrt"></div>
+        <form class = "profileForm" id = "profileForm">
+          <div class = "bookingTitle">訂購導覽行程</div>
+          <div class = "bookingContents">以此景點為中心的一日行程，帶您探索城市角落故事</div>
+          <div class = "bookingDate">
+            <div class = "bookingDateText">選擇日期：</div>
+            <input id = "bookingDateInput" class = "bookingDateInput" type = "date"/>
+          </div>
+          <div id = "timeForm" class = "timeForm">
+            <div class = "timeFormTitle">選擇時間：</div>
+            <div id = "firstHalf" class = "firstHalf">
+              <div class = "firstHalfCircle" id = "firstHalfCircle"></div>
+              <div class = "timeFormText">上半天</div>
+            </div>
+            <div id = "secondHalf" class = "secondHalf">
+              <div class = "secondHalfCircle" id = "secondHalfCircle"></div>
+              <div class = "timeFormText">下半天</div>
+            </div>
+          </div>
+          <div class = "price">
+            <div class = "priceTitle">導覽費用：</div>
+            <div class = "priceContent" id = "priceContent">新台幣 2000 元</div>
+          </div>
+          <input type = "submit" value = "開始預約行程" class = "reserveBtn"/>
+        </form>
+      </div>
+    </section>
+    <div class = "mainLine"></div>
+    <div id = "infors" class = "infors"></div>
+</main>
+<footer class = "footer">
+  <span class = "footerText">COPYRIGHT © 2021 台北一日遊</span>
+<footer>
 </body>
 </html>
