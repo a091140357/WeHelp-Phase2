@@ -85,7 +85,7 @@ async function getPageData(page, category = "", keyword = ""){
     let innerhtml = ""
     for(let i of dataArray){
         innerhtml += `
-        <div class = "attraction">
+        <div class = "attraction" data-id = "${i["id"]}">
             <div class = "container">
                 <img class = "attImg" src = "${i["images"][0]}">
                 <div class = "attName">${i["name"]}</div>
@@ -223,3 +223,16 @@ mrtListContainer.addEventListener("click", async(event)=>{
     }
 })
 
+attractionsGroup.addEventListener("click", function(event){
+    const cardClick = event.target.closest(".attraction");
+    if(!cardClick){
+        return;
+    }
+    const attractionId = cardClick.dataset.id;
+    window.location.href = `/attraction/${attractionId}`
+})
+
+const title = document.querySelector(".title");
+title.addEventListener("click", function(){
+    window.location.href = "/";
+})
