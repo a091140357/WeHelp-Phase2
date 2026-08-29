@@ -7,6 +7,10 @@ import mysql.connector
 from mysql.connector import pooling
 from mysql.connector import Error
 from dotenv import load_dotenv
+import bcrypt
+from pydantic import BaseModel
+import jwt
+import datetime
 
 load_dotenv()
 
@@ -232,6 +236,155 @@ def get_mrts_list():
 		if connection is not None and connection.is_connected(): #如果一開始就沒連到或中間連線斷掉，就關閉資料池連線
 			connection.close()
 
+class signup_user_data(BaseModel):
+	name:str
+	email:str
+	password:str
 
+class login_user_data(BaseModel):
+	email:str
+	password:str
 
+#把密碼用bcrypt雜湊
+def get_password_hash(password:str):
+	pwd_bytes = password.encode("utf-8")
+	hash_pwd_bytes = bcrypt.hashpw(pwd_bytes, bcrypt.gensalt())
+	return hash_pwd_bytes.decode("utf-8")
+
+#驗證輸入的密碼與雜湊的密碼是否一樣
+def verify_password(password:str, hash_password:str):
+	password_bytes = password.encode("utf-8")
+	hash_password_bytes = hash_password.encode("utf-8")
+
+	return bcrypt.checkpw(password_bytes, hash_password_bytes)
+
+@app.post("/api/user")
+def signup(user:signup_user_data):
+	user_name = user.name
+	user_email = user.email
+	user_password = get_password_hash(user.password)
+	print(f"{user_name},{user_email},{user_password}")
+
+	connection = None
+	cursor = None
+	
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("insert into userLoginData(user_name, user_email, user_password) values(%s, %s, %s)",(user_name, user_email, user_password))
+		connection.commit()
+
+		return {"ok": True}
+	
+	except mysql.connector.IntegrityError:
+		return JSONResponse(
+			status_code = 400,
+			content = {
+				"error":True,
+				"message":"Email已經被註冊過了"
+			}
+		)
+		
+	except Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":"伺服器發生錯誤:{e}"
+			}
+		)
+
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+jwt_secret_key = os.getenv("secret_key")
+
+@app.put("/api/user/auth")
+def login(user:login_user_data):
+	user_email = user.email
+	user_password = user.password
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("select id, user_name, user_password from userLoginData where user_email = %s",(user_email,))
+		user_data = cursor.fetchone()
+
+		if not user_data:
+			return JSONResponse(
+				status_code = 400,
+				content = {
+					"error":True,
+					"message":"信箱或密碼錯誤"
+				}
+			)
+		
+		hash_password = user_data["user_password"]
+
+		is_login = verify_password(user_password, hash_password)
+
+		if not is_login:
+			return JSONResponse(
+				status_code = 400,
+				content = {
+					"error":True,
+					"message":"信箱密碼錯誤"
+				}
+			)
+		
+		payload = {
+			"id":user_data["id"],
+			"name":user_data["user_name"],
+			"email":user_email,
+			"exp":datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days = 7)
+		}
+		
+		token = jwt.encode(payload, jwt_secret_key, algorithm = "HS256")
+
+		if token:
+			return {"token":token}
+
+	except Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+@app.get("/api/user/auth")
+def verify_user(request:Request):
+	auth_header = request.headers.get("Authorization")
+
+	if not auth_header or not auth_header.startswith("Bearer "):
+		return {"data": None}
+	
+	token = auth_header.split(" ")[1]
+	try:
+		decode_data = jwt.decode(token, jwt_secret_key, algorithms=["HS256"])
+		return {
+            "data": {
+                "id": decode_data["id"],
+                "name": decode_data["name"],
+                "email": decode_data["email"]
+            }
+        }
+	except jwt.ExpiredSignatureError:
+		return {"data": None}
+	except jwt.InvalidTokenError:
+		return {"data": None}
+	
 app.mount("/static", StaticFiles(directory = "static"), name = "static")

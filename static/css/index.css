@@ -186,7 +186,8 @@ nav li{
     grid-template-columns: repeat(4, 1fr);
 }
 .attraction{
-    border-radius:5px;    overflow: hidden;
+    border-radius:5px;    
+    overflow: hidden;
     border: 1px solid #E8E8E8;
     width: 100%;
     box-sizing: border-box;

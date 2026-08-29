@@ -7,6 +7,8 @@
   <link rel = "stylesheet" href = "/static/css/index.css">
   <script src = "/static/js/attractions.js"defer></script>
   <script src = "/static/js/drop-down-menu.js"defer></script><!-- 接收後端景點分類資料 -->
+  <link rel="stylesheet" href="/static/css/common.css">
+  <script src="/static/js/auth.js" defer></script>
 
 </head>
 <body>
@@ -16,19 +18,42 @@
       <nav class = "navBar">
         <ul>
           <li>預訂行程</li>
-          <li>登入/註冊</li>
+          <li class = "loginBtn">登入/註冊</li>
         </ul>
       </nav>
     </div>
   </header>
   <main>
+    <div class = "loginSection" onclick = "clickOutSide(event)">
+      <div class = "login">
+        <div class = "loginBar"></div>
+        <div class = "loginCloseIcon">
+          <img class = "loginCloseImg" src = "/static/imgs/叉叉.png"/>
+        </div>
+        <div class = "loginMain">
+          <span class = "loginTitle">登入會員帳號</span>
+          <div class = "loginForm">
+            <input type = "email" id = "loginFormInputEmail" class = "loginFormInput" placeholder = "輸入電子信箱">
+            <input type = "password" id = "loginFormInputPwd" class = "loginFormInput" placeholder = "輸入密碼">
+            <button class = "loginFormInputBtn">登入帳戶</button>
+            <div class = "signupTextDiv">
+              <span class = "signupText">還沒有帳戶？</span>
+              <span class = "signupBtn">點此註冊</span>
+            </div>
+            <div id="errorMessage" class = "errorMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <section class = "heroSection">
       <picture>
         <source media = "(max-width: 360px)" srcset = "/static/imgs/台北101圖片.png">
         <img class="heroImg" src="/static/imgs/[desktop] hero section.png" alt="台北101圖片">
       </picture>
       <div class = "heroContent">
-        <div class = heroContentDiv>
+        <div class = "heroContentDiv">
           <div class = "slogan">
             <div class = "sloganText1">輕鬆享受台北一日悠閒</div>
             <div class = "sloganText2">探索每個角落，體驗城市的深度旅遊行程</div>
@@ -69,7 +94,7 @@
 
   <footer class = "footer">
     <span class = "footerText">COPYRIGHT © 2021 台北一日遊</span>
-  <footer>
+  </footer>
 
 </body>
 </html>
