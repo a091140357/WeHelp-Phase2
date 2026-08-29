@@ -5,44 +5,6 @@ body {
 *{
     margin:0;
 }
-nav ul{
-    list-style:none;
-    padding:0;
-    margin:0;
-    display: flex;
-}
-nav li{
-    padding:10px;
-}
-.navigation{
-    display: flex;
-    max-width: 1200px;
-    height:34px;
-    align-items: center;
-    margin-left: auto;
-    margin-right: auto;
-    justify-content: space-between;
-    padding-top:10px;
-    padding-bottom:10px;
-}
-.title{
-    font-size:30px;
-    font-weight:700;
-    color:#448899;
-    padding-left: 10px;
-    padding-right: 10px;
-    cursor:pointer;
-}
-.navBar{
-    display: flex;
-    font-size:16px;
-    font-weight: 500;
-    color:#666666;
-    line-height: 13.3px;
-}
-.navLine{
-    border-bottom: 1px solid #E8E8E8;
-}
 .main{
     width:1200px;
     margin-left: auto;
