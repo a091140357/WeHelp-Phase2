@@ -11,6 +11,7 @@ import bcrypt
 from pydantic import BaseModel
 import jwt
 import datetime
+from auth import *
 
 load_dotenv()
 
@@ -290,7 +291,7 @@ def signup(user:signup_user_data):
 			status_code = 500,
 			content = {
 				"error":True,
-				"message":"伺服器發生錯誤:{e}"
+				"message":f"伺服器發生錯誤:{e}"
 			}
 		)
 
@@ -366,25 +367,179 @@ def login(user:login_user_data):
 			connection.close()
 
 @app.get("/api/user/auth")
-def verify_user(request:Request):
-	auth_header = request.headers.get("Authorization")
-
-	if not auth_header or not auth_header.startswith("Bearer "):
-		return {"data": None}
+def get_user_status(user_info:dict = Depends(verify_user)):
+	if not user_info:
+		return {"data":None}
+	if user_info:
+		return user_info
 	
-	token = auth_header.split(" ")[1]
+@app.get("/api/booking")
+def get_booking_status(user_info:dict = Depends(verify_user)):
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+				}
+		)
+	user_id = user_info["data"]["id"]
+
+	connection = None
+	cursor = None
+
 	try:
-		decode_data = jwt.decode(token, jwt_secret_key, algorithms=["HS256"])
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("select * from userBookingData where user_id=%s",(user_id,))
+		user_data = cursor.fetchone()
+		if not user_data:
+			return {"data":None}
+
+		attractionId = user_data["attractionId"]
+		date = user_data["date"]
+		time = user_data["time"]
+		price = user_data["price"]
+
+		cursor.execute("select name,address,images from attractions where id=%s",(attractionId,))
+		attraction_data = cursor.fetchone()
+		
+		attractionName = attraction_data["name"]
+		attractionAddress = attraction_data["address"]
+		attractionImage = attraction_data["images"]
+		
+		data_dict = {
+			"data":{
+				"attraction":{
+					"id":attractionId,
+					"name":attractionName,
+					"address":attractionAddress,
+					"image":attractionImage
+				},
+				"date":date,
+				"time":time,
+				"price":price
+			}
+		}
+
+		return data_dict
+
+	except Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+
+class Create_booking(BaseModel):
+	attractionId:int
+	date:str
+	time:str
+	price:int
+
+@app.post("/api/booking")
+def create_booking(
+	booking_data:Create_booking,
+	user_info:dict = Depends(verify_user)
+	):
+	print(user_info)
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+				"message":"還未登入，請先登入"
+				}
+		)
+	user_id = user_info["data"]["id"]
+	attractionId = booking_data.attractionId
+	date = booking_data.date
+	time = booking_data.time
+	price = booking_data.price
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("DELETE FROM userBookingData WHERE user_id = %s", (user_id,))
+		cursor.execute("insert into userBookingData(user_id, attractionId, date, time, price) values (%s,%s,%s,%s,%s)",(user_id, attractionId, date, time, price))
+		connection.commit()
 		return {
-            "data": {
-                "id": decode_data["id"],
-                "name": decode_data["name"],
-                "email": decode_data["email"]
-            }
-        }
-	except jwt.ExpiredSignatureError:
-		return {"data": None}
-	except jwt.InvalidTokenError:
-		return {"data": None}
+			"ok": True
+		}
+	except mysql.connector.IntegrityError:
+		return JSONResponse(
+			status_code = 400,
+			content = {
+				"error":True,
+				"message":"輸入資料格式錯誤"
+			}
+		)
+	
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+@app.delete("/api/booking")
+def del_booking(user_info:dict = Depends(verify_user)):
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+				}
+		)
+	user_id = user_info["data"]["id"]
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("delete from userBookingData where user_id = %s", (user_id,))
+		connection.commit()
+		return {
+			"ok": True
+		}
+	
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+
+
 	
 app.mount("/static", StaticFiles(directory = "static"), name = "static")

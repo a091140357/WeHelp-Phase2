@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&display=swap');
+body {
+  font-family: 'Noto Sans TC', sans-serif; /* sans-serif是如果沒有抓到字體會使用這個 */
+}
+*{
+    margin:0;
+}
+nav ul{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display: flex;
+}
+nav li{
+    padding:10px;
+}
+.navline{
+    width: 100%;
+    border: 1px solid #E8E8E8
+}
+.headline{
+    width: 1000px;
+    height: 27px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:40px;
+}
+.headlineText{
+    font-size: 19px;
+    font-weight:700;
+    color: #666666;
+}
+.section{
+    width:980px;
+    height:200px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:30px;
+    display: flex;
+}
+.arrPic{
+    width:250px;
+    height:200px;
+    object-fit: cover;
+}
+.infor{
+    width:700px;
+    height:170px;
+    margin-left:30px;
+}
+.inforTitle{
+    font-size:16px;
+    font-weight:700;
+    color: #448899;
+    margin-bottom: 20px;
+}
+.inforText{
+    margin-bottom: 10px;
+}
+.subtitle{
+    font-size:16px;
+    font-weight:700;
+    color: #666666;
+}
+.inforContent{
+    font-size:16px;
+    font-weight:400;
+    color: #666666;
+}
+.trashIcon{
+    width:30px;
+    height:30px;
+    cursor:pointer;
+}
+.trashIcon:hover{
+    transform: scale(1.10);
+}
+.trashIcon:active{
+    transform: scale(1.00);
+}
+.separatorLine{
+    width:1200px;
+    border: 1px solid #E8E8E8;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:40px;
+    margin-bottom:40px;
+}
+.contactForm{
+    width:980px;
+    margin-left:auto;
+    margin-right:auto;
+}
+.contactFormTitle{
+    font-size:19px;
+    font-weight:700;
+    color: #666666;
+    margin-bottom:20px;
+}
+.contactFormDiv{
+    margin-bottom:15px;
+}
+.contactFormSubtitle{
+    font-size:16px;
+    font-weight:400;
+    color: #666666;
+}
+.contactFormInput{
+    width:200px;
+    height:38px;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #E8E8E8;
+    font-size:16px;
+    font-weight:500;
+}
+.remark{
+    font-size:16px;
+    font-weight:700;
+    color: #666666;
+}
+.payment{
+    width:980px;
+    margin-left:auto;
+    margin-right:auto;
+}
+.paymentTitle{
+    font-size:19px;
+    font-weight:700;
+    color: #666666;
+    margin-bottom:20px;
+}
+.paymentFormDiv{
+    margin-bottom:15px;
+}
+.paymentFormSubtitle{
+    font-size:16px;
+    font-weight:400;
+    color: #666666;
+}
+.paymentFormInput{
+    height:38px;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #E8E8E8;
+    font-size:16px;
+    font-weight:500;
+}
+.confirm{
+    width: 980px;
+    height: 100px;
+    margin-left:auto;
+    margin-right:auto;
+    display:flex;
+    justify-content: flex-end;
+    margin-bottom:40px;
+}
+.confirmBtn{
+    width:173px;
+    height:36px;
+    background-color:#448899;
+    border-radius:5px;
+    border: 0px;
+    font-size:19px;
+    font-weight:400;
+    color:#FFFFFF;
+}
+.confirmBtn:hover{
+    transform: scale(1.03);
+}
+.confirmBtn:active{
+    transform: scale(1.00);
+}
+.totalPrice{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:22px;
+    color:#666666;
+    text-align: end;
+}
+.emptyStatus{
+    display:block;
+    margin-top:30px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 40px;
+    width: 1000px;
+    height: 24px;
+}
+.emptyStatusText{
+    font-size: 16x;
+    font-weight:400;
+    color: #666666;
+}
+.footer{
+    background: #757575;
+    padding-top:40px;
+    padding-bottom:40px;
+    box-shadow: 0 50vh 0 50vh #757575;
+}
+.footerText{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color:#FFFFFF;
+}

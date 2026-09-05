@@ -232,7 +232,3 @@ attractionsGroup.addEventListener("click", function(event){
     window.location.href = `/attraction/${attractionId}`
 })
 
-const title = document.querySelector(".title");
-title.addEventListener("click", function(){
-    window.location.href = "/";
-})
