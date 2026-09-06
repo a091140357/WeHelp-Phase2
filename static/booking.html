@@ -4,8 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/booking.css">
+  <script src="/static/js/booking.js" defer></script>
+  <script src="/static/js/auth.js" defer></script>
 </head>
 <body>
+  <header>
+    <div class = "navigation">
+      <div class = "title">台北一日遊</div>
+      <nav class = "navBar">
+        <ul>
+          <li class = "bookingBtn">預訂行程</li>
+          <li class = "loginBtn">登入/註冊</li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class = "loginSection" onclick = "clickOutSide(event)">
+      <div class = "login">
+        <div class = "loginBar"></div>
+        <div class = "loginCloseIcon">
+          <img class = "loginCloseImg" src = "/static/imgs/叉叉.png"/>
+        </div>
+        <div class = "loginMain">
+          <span class = "loginTitle">登入會員帳號</span>
+          <div class = "loginForm">
+            <input type = "email" id = "loginFormInputEmail" class = "loginFormInput" placeholder = "輸入電子信箱">
+            <input type = "password" id = "loginFormInputPwd" class = "loginFormInput" placeholder = "輸入密碼">
+            <button class = "loginFormInputBtn">登入帳戶</button>
+            <div class = "signupTextDiv">
+              <span class = "signupText">還沒有帳戶？</span>
+              <span class = "signupBtn">點此註冊</span>
+            </div>
+            <div id="errorMessage" class = "errorMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class = "navline"></div>
+
+    <div class = headline>
+      <span class = "headlineText">您好，</span>
+      <span class = "headlineText" id = "headlineUserName">{{user_name}}</span>
+      <span class = "headlineText">，待預訂的行程如下：</span>
+    </div>
+    <div id = "sectionContainer">
+    </div>
+    <div class = "emptyStatus">
+      <span class = "emptyStatusText">目前沒有任何待預訂的行程</span>
+    </div>
+  </main>
+
+  <footer class = "footer">
+    <span class = "footerText">COPYRIGHT © 2021 台北一日遊</span>
+  </footer>
   
 </body>
 </html>

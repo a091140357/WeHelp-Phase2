@@ -159,25 +159,46 @@ secondHalf.addEventListener("click", function(event){
 
 const profileForm = document.getElementById("profileForm");
 
-profileForm.addEventListener("submit", function(event){
+profileForm.addEventListener("submit", async function(event){
     event.preventDefault();
     
     const date = document.getElementById("bookingDateInput").value;
     let time = "";
+    let price = "";
     if(!date){
         window.alert("請填寫日期再送出");
         return;
     }
     if(isFirstHalfOk){
         time = "morning";
+        price = 2000;
     }
     if(isSecondHalfOk){
         time = "afternoon";
+        price = 2500;
     }
-    console.log(`time:${time}, date:${date}`)
-})
 
-const title = document.querySelector(".title");
-title.addEventListener("click", function(){
-    window.location.href = "/";
+    const token = localStorage.getItem("jwt_token");
+    console.log(` attractionId:${attractionId}, time:${time}, date:${date}, price:${price}`)
+
+    const response = await fetch("/api/booking",{
+        method:"POST",
+        headers:{
+            "Content-Type": "application/json",
+            "Authorization":`Bearer ${token}`
+        },
+        body:JSON.stringify({
+            "attractionId":attractionId, 
+            "time":time, 
+            "date":date, 
+            "price":price
+        })
+    })
+    const result = await response.json()
+    window.location.href = "/booking";
+    if (result.error){
+        alert("還未登入，請先登入")
+    }
+
+    console.log(result);
 })

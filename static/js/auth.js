@@ -10,6 +10,7 @@ const login = document.querySelector(".login");
 const signupText = document.querySelector(".signupText");
 const loginTitle = document.querySelector(".loginTitle");
 
+
 let isLogin = true;
 
 function closeSignup(){
@@ -34,7 +35,7 @@ loginBtn.addEventListener("click", function(event){
     if (loginBtn.textContent === "登出系統") {
         localStorage.removeItem("jwt_token");
         loginBtn.textContent = "登入/註冊";
-        window.location.reload(); 
+        window.location.href = "/"; 
         return;
     }
     
@@ -200,3 +201,19 @@ async function checkAuthStatus(){
 }
 
 checkAuthStatus();
+
+const title = document.querySelector(".title");
+title.addEventListener("click", function(){
+    window.location.href = "/";
+})
+
+const bookingBtn = document.querySelector(".bookingBtn");
+bookingBtn.addEventListener("click", function(){
+    const token = localStorage.getItem("jwt_token");
+    if (!token){
+        loginBtn.click();
+        return;
+    } 
+    
+   window.location.href = "/booking"; 
+})
