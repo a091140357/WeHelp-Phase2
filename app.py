@@ -464,6 +464,8 @@ def create_booking(
 	date = booking_data.date
 	time = booking_data.time
 	price = booking_data.price
+	print(time)
+	print(price)
 
 	connection = None
 	cursor = None

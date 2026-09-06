@@ -72,8 +72,8 @@ async function checkAuthStatus() {
                             <span class = "subtitle">地點：</span>
                             <span class = "inforContent">${bookingData.attraction.address}</span>
                         </div>
+                        <img class = "trashIcon" src = "/static/imgs/trash.png">
                     </div>
-                    <img class = "trashIcon" src = "/static/imgs/trash.png">
                 </div>
 
                 <div class = "userData">

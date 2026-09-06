@@ -47,6 +47,7 @@ nav li{
     width:700px;
     height:170px;
     margin-left:30px;
+    position: relative;
 }
 .inforTitle{
     font-size:16px;
@@ -66,6 +67,11 @@ nav li{
     font-size:16px;
     font-weight:400;
     color: #666666;
+}
+.trashIcon{
+    position: absolute;
+    top:0px;
+    right:0px;
 }
 .trashIcon{
     width:30px;
@@ -206,4 +212,120 @@ nav li{
     align-items: center;
     font-size: 16px;
     color:#FFFFFF;
+}
+@media(max-width:1200px){
+    .separatorLine{
+        width:950px;
+    }
+    .headline{
+        width: 800px;
+    }
+    .section{
+        width:800px;
+    }
+    .contactForm{
+        width:800px;
+    }
+    .payment{
+        width:800px;
+    }
+    .confirm{
+        width: 800px;
+    }
+    .infor{
+        width:500px;
+        height:170px;
+    }
+    .emptyStatus{
+        width:800px;
+    }
+}
+@media(max-width:1000px){
+    .separatorLine{
+        width:600px;
+    }
+    .headline{
+        width: 580px;
+    }
+    .section{
+        width:550px;
+    }
+    .contactForm{
+        width:450px;
+    }
+    .payment{
+        width:450px;
+    }
+    .confirm{
+        width: 450px;
+    }
+    .emptyStatus{
+        width:580px;
+    }
+}
+@media(max-width:600px){
+    .separatorLine{
+        width:430px;
+    }
+    .headline{
+        width: 430px;
+    }
+    .section{
+        width:360px;
+        height:auto;
+        flex-direction: column;
+    }
+    .contactForm{
+        width:340px;
+    }
+    .payment{
+        width:340px;
+    }
+    .confirm{
+        width: 340px;
+    }
+    .arrPic{
+        width:340px;
+        height:200px;
+        margin-bottom:30px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .infor{
+        width:340px;
+        height:200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .trashIcon{
+        top:auto;
+        bottom:0px;
+    }
+    .emptyStatus{
+        width:430px;
+    }
+}
+@media(max-width:430px){
+    .separatorLine{
+        width:340px;
+    }
+    .headline{
+        width: 340px;
+    }
+    .section{
+        width:360px;
+        height:auto;
+    }
+    .contactForm{
+        width:340px;
+    }
+    .payment{
+        width:340px;
+    }
+    .confirm{
+        width: 340px;
+    }
+    .emptyStatus{
+        width:340px;
+    }
 }
