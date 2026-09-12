@@ -12,6 +12,7 @@ from pydantic import BaseModel
 import jwt
 import datetime
 from auth import *
+import random, httpx
 
 load_dotenv()
 
@@ -541,6 +542,227 @@ def del_booking(user_info:dict = Depends(verify_user)):
 		if connection is not None and connection.is_connected():
 			connection.close()
 
+
+def create_order_number():
+	#建立訂單編號
+	date_str = datetime.datetime.now().strftime("%Y%m%d")
+	random_num = str(random.randint(0, 999999))
+	random_len = len(random_num)
+
+	if random_len < 6:
+		zero_num = (6 - random_len) * "0"
+		order_number = int(date_str + zero_num + random_num)
+		print(order_number)
+		return order_number
+
+	else:
+		order_number = int(date_str + random_num)
+		print(order_number)
+		return order_number
+
+class attractionData(BaseModel):
+	id:int
+	name:str
+	address:str
+	image:str
+class tripData(BaseModel):
+	attraction:attractionData
+	date:str
+	time:str
+class contactData(BaseModel):
+	name:str
+	email:str
+	phone:int
+class orderData(BaseModel):
+	price:int
+	trip:tripData
+	contact:contactData
+class orderRequest(BaseModel):
+	prime:str
+	order:orderData
+
+partner_key = os.getenv("partner_key")
+merchant_id = os.getenv("merchant_id")
+	
+@app.post("/api/orders")
+async def get_orders(
+	orderRequest:orderRequest,
+	user_info:dict = Depends(verify_user)
+	):
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+			}
+		)
+	
+	order_number = create_order_number()
+	prime = orderRequest.prime
+	user_id = user_info["data"]["id"]
+	price = orderRequest.order.price
+	attraction_id = orderRequest.order.trip.attraction.id
+	attraction_name = orderRequest.order.trip.attraction.name
+	attraction_address = orderRequest.order.trip.attraction.address
+	attraction_image = orderRequest.order.trip.attraction.image
+	date = orderRequest.order.trip.date
+	time = orderRequest.order.trip.time
+	contact_name = orderRequest.order.contact.name
+	contact_email = orderRequest.order.contact.email
+	contact_phone = orderRequest.order.contact.phone
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("insert into orders(order_number, user_id, price, attraction_id, attraction_name, attraction_address, attraction_image, date, time, contact_name, contact_email, contact_phone) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(order_number, user_id , price, attraction_id, attraction_name, attraction_address, attraction_image, date, time, contact_name, contact_email, contact_phone))
+		connection.commit()
+
+		tappay_url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
+		header = {
+			"Content-Type":"application/json",
+			"x-api-key":partner_key
+		}
+
+		payload = {
+			"prime": prime,
+			"partner_key": partner_key,
+			"merchant_id": merchant_id,
+			"details":"台北一日遊 TapPay Test",
+			"amount": price,
+			"cardholder": {
+				"phone_number": contact_phone,
+				"name": orderRequest.order.contact.name,
+				"email": contact_email
+			},
+			"remember": False
+		}
+
+		async with httpx.AsyncClient() as client:
+			tappay_res = await client.post(tappay_url, headers = header, json = payload)
+			result = tappay_res.json()
+
+			order_status = result["status"]
+			order_msg = result["msg"]
+
+		if order_status == 0:
+			cursor.execute("update orders set status = 1, payment_msg = %s where order_number = %s",(order_msg,order_number))
+		else:
+			cursor.execute("update orders set payment_msg = %s where order_number = %s",(order_msg,order_number))
+
+		connection.commit()
+
+		return {
+			"data":{
+				"number":order_number,
+				"payment":{
+					"status":order_status,
+					"message":order_msg
+				}
+			}
+		}
+	
+	except mysql.connector.IntegrityError:
+		return JSONResponse(
+			status_code = 400,
+			content = {
+				"error":True,
+				"message":"輸入資料格式錯誤"
+			}
+		)
+	
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+@app.get("/api/order/{orderNumber}")
+def get_order_data(
+	orderNumber:str,
+	request:Request,
+	user_info:dict = Depends(verify_user)
+	):
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+			}
+		)
+
+	user_id = user_info["data"]["id"]
+	print(user_id)
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("select * from orders where order_number = %s and user_id = %s",(orderNumber,user_id))
+		order_data = cursor.fetchone()
+		print(order_data)
+
+		if not order_data:
+			return JSONResponse(
+				status_code = 400,
+				content = {
+					"error":True,
+					"message":"訂單不存在，或此訂單不是該用戶"
+				}
+			)
+
+		return {
+			"data":{
+				"number":order_data["order_number"],
+				"price":order_data["price"],
+				"trip":{
+					"attraction":{
+						"id":order_data["attraction_id"],
+						"name":order_data["attraction_name"],
+						"address":order_data["attraction_address"],
+						"image":order_data["attraction_image"]
+					},
+				"date":order_data["date"],
+				"time":order_data["time"]
+				},
+				"contact":{
+					"name":order_data["contact_name"],
+					"email":order_data["contact_email"],
+					"phone":order_data["contact_phone"]
+				},
+				"status":order_data["status"]
+			}
+		}
+	
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
 
 
 	
