@@ -32,10 +32,10 @@ function closeSignup(){
 
 loginBtn.addEventListener("click", function(event){
 
-    if (loginBtn.textContent === "登出系統") {
-        localStorage.removeItem("jwt_token");
-        loginBtn.textContent = "登入/註冊";
-        window.location.href = "/"; 
+    if (loginBtn.textContent === "會員中心") {
+        // localStorage.removeItem("jwt_token");
+        // loginBtn.textContent = "登入/註冊";
+        window.location.href = "/member"; 
         return;
     }
     
@@ -190,7 +190,7 @@ async function checkAuthStatus(){
         const result = await response.json();
 
         if (result.data) {
-            loginBtn.textContent = "登出系統";
+            loginBtn.textContent = "會員中心";
         } else {
             loginBtn.textContent = "登入/註冊";
             localStorage.removeItem("jwt_token");
