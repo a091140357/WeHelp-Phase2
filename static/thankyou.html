@@ -4,8 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thank You</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/thankyou.css">
+  <script src="/static/js/thankyou.js" defer></script>
+  <script src="/static/js/auth.js" defer></script>
 </head>
 <body>
+<body>
+  <header>
+    <div class = "navigation">
+      <div class = "title">台北一日遊</div>
+      <nav class = "navBar">
+        <ul>
+          <li class = "bookingBtn">預訂行程</li>
+          <li class = "loginBtn">登入/註冊</li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class = "loginSection" onclick = "clickOutSide(event)">
+      <div class = "login">
+        <div class = "loginBar"></div>
+        <div class = "loginCloseIcon">
+          <img class = "loginCloseImg" src = "/static/imgs/叉叉.png"/>
+        </div>
+        <div class = "loginMain">
+          <span class = "loginTitle">登入會員帳號</span>
+          <div class = "loginForm">
+            <input type = "email" id = "loginFormInputEmail" class = "loginFormInput" placeholder = "輸入電子信箱">
+            <input type = "password" id = "loginFormInputPwd" class = "loginFormInput" placeholder = "輸入密碼">
+            <button class = "loginFormInputBtn">登入帳戶</button>
+            <div class = "signupTextDiv">
+              <span class = "signupText">還沒有帳戶？</span>
+              <span class = "signupBtn">點此註冊</span>
+            </div>
+            <div id="errorMessage" class = "errorMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class = "navline"></div>
+
+    <div id = "userOrderData" class = "userOrderData"></div>
+    </main>
+
+    <footer class = "footer">
+      <span class = "footerText">COPYRIGHT © 2021 台北一日遊</span>
+    </footer>
   
 </body>
 </html>

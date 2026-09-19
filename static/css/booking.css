@@ -15,7 +15,6 @@ nav li{
     padding:10px;
 }
 .navline{
-    width: 100%;
     border: 1px solid #E8E8E8
 }
 .headline{
@@ -139,20 +138,22 @@ nav li{
 }
 .paymentFormDiv{
     margin-bottom:15px;
+    display: flex;
+    align-items: center;
 }
 .paymentFormSubtitle{
     font-size:16px;
     font-weight:400;
     color: #666666;
 }
-.paymentFormInput{
-    height:38px;
-    border-radius: 5px;
+.tpfieId{
+    border: 1px solid #E8E8E8;
     padding: 10px;
     box-sizing: border-box;
-    border: 1px solid #E8E8E8;
-    font-size:16px;
-    font-weight:500;
+    height: 38px;
+    width:200px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
 }
 .confirm{
     width: 980px;
@@ -213,6 +214,7 @@ nav li{
     font-size: 16px;
     color:#FFFFFF;
 }
+
 @media(max-width:1200px){
     .separatorLine{
         width:950px;

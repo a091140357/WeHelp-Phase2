@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700&display=swap');
+body {
+  font-family: 'Noto Sans TC', sans-serif; /* sans-serif是如果沒有抓到字體會使用這個 */
+}
+*{
+    margin:0;
+}
+nav ul{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display: flex;
+}
+nav li{
+    padding:10px;
+}
+.navline{
+    border: 1px solid #E8E8E8
+}
+.payStatus{
+    font-size:25px;
+    width:1100px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:50px;
+    font-weight:700;
+    color: #666666;
+}
+.payStatusText{
+    margin-bottom:30px;
+}
+.paySuccessText{
+    color: #269655;
+}
+.orderNumber{
+    font-size:20px;
+    width:980px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:50px;
+    font-weight:700;
+    color: #666666;
+}
+.section{
+    width:980px;
+    height:200px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:30px;
+    display: flex;
+}
+.arrPic{
+    width:250px;
+    height:200px;
+    object-fit: cover;
+}
+.infor{
+    width:700px;
+    height:170px;
+    margin-left:30px;
+}
+.inforTitle{
+    font-size:16px;
+    font-weight:700;
+    color: #448899;
+    margin-bottom: 20px;
+}
+.inforText{
+    margin-bottom: 10px;
+}
+.subtitle{
+    font-size:16px;
+    font-weight:700;
+    color: #666666;
+}
+.inforContent{
+    font-size:16px;
+    font-weight:400;
+    color: #666666;
+}
+.separatorLine{
+    width:1100px;
+    border: 1px solid #E8E8E8;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:40px;
+    margin-bottom:40px;
+}
+.contactForm{
+    width:980px;
+    margin-left:auto;
+    margin-right:auto;
+}
+.contactFormTitle{
+    font-size:19px;
+    font-weight:700;
+    color: #666666;
+    margin-bottom:20px;
+}
+.contactFormDiv{
+    margin-bottom:15px;
+}
+.contactFormSubtitle{
+    font-size:16px;
+    font-weight:400;
+    color: #666666;
+}
+.contactText{
+    font-size:16px;
+    font-weight:400;
+    color:#666666;
+}
+.userOrderData{
+    margin-bottom: 150px;
+}
+.footer{
+    background: #757575;
+    padding-top:40px;
+    padding-bottom:40px;
+    box-shadow: 0 50vh 0 50vh #757575;
+}
+.footerText{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color:#FFFFFF;
+}
+@media(max-width:1200px){
+    .payStatus{
+        width:950px;
+    }
+    .orderNumber{
+        width:800px;
+    }
+    .separatorLine{
+        width:950px;
+    }
+    .section{
+        width:800px;
+    }
+    .contactForm{
+        width:800px;
+    }
+    .infor{
+        width:500px;
+        height:170px;
+    }
+}
+@media(max-width:1000px){
+    .payStatus{
+        width:580px;
+    }
+    .orderNumber{
+        width:525px;
+    }
+    .separatorLine{
+        width:580px;
+    }
+    .section{
+        width:525px;
+    }
+    .contactForm{
+        width:525px;
+    }
+    .infor{
+        width:340px;
+        height:170px;
+    }
+}
+@media(max-width:600px){
+    .payStatus{
+        width:340px;
+        font-size:20px;
+    }
+    .orderNumber{
+        width:340px;
+    }
+    .separatorLine{
+        width:340px;
+    }
+    .section{
+        width:360px;
+        height:auto;
+        flex-direction: column;
+    }
+    .arrPic{
+        width:340px;
+        height:200px;
+        margin-bottom:30px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .contactForm{
+        width:340px;
+    }
+    .infor{
+        width:340px;
+        height:200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

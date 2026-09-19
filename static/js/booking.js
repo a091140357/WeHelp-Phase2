@@ -1,39 +1,62 @@
-const headlineUserName = document.getElementById("headlineUserName");
-const emptyStatus = document.querySelector(".emptyStatus");
+let attractionName = "";
+let attractionDate = "";
+let attractionTime = "";
+let attractionPrice = "";
+let attractionAddress = "";
+let attractionImage = "";
+let attractionId = "";
+let userName = "";
+let userEmail = "";
+let userPhone = "";
 
-async function checkAuthStatus() {
+async function checkAuthStatus(){
     const token = localStorage.getItem("jwt_token");
     if (!token) {
         window.location.href = "/";
         return;
     }
-
     try {
         const response = await fetch("/api/user/auth", {
             method: "GET",
             headers: {
                     "Authorization": `Bearer ${token}`
-                }
-            });
-            const result = await response.json();
-
-            if (result.error || !result.data) {
-                localStorage.removeItem("jwt_token");
-                window.location.href = "/";
-                return;
             }
+        });
+        const result = await response.json();
 
-            const userName = result.data.name;
-            headlineUserName.innerText = userName;
+        if (result.error || !result.data) {
+            localStorage.removeItem("jwt_token");
+            window.location.href = "/";
+            return;
+        }
 
-            const bookingResponse = await fetch("/api/booking",{
+        return result.data;
+    }catch (error){
+        console.log(error);
+    }
+}
+
+async function initPage(){
+    const userData = await checkAuthStatus();
+    if (!userData) {
+        window.location.href = "/";
+        return;
+    }
+
+    const headlineUserName = document.getElementById("headlineUserName");
+    headlineUserName.innerText = userData.name;
+
+    const token = localStorage.getItem("jwt_token");
+
+    const bookingResponse = await fetch("/api/booking",{
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
             const bookingResult = await bookingResponse.json();
-            console.log(bookingResult.data)
+            console.log(bookingResult.data);
+            const emptyStatus = document.querySelector(".emptyStatus");
 
             if (bookingResult.error){
                 console.log(bookingResult.message)
@@ -50,6 +73,14 @@ async function checkAuthStatus() {
 
             const bookingData = bookingResult.data;
             const images = JSON.parse(bookingData.attraction.image);
+
+            attractionName = bookingData.attraction.name;
+            attractionDate = bookingData.date;
+            attractionTime = bookingData.time;
+            attractionPrice = bookingData.price;
+            attractionAddress = bookingData.attraction.address;
+            attractionImage = images[0];
+            attractionId = bookingData.attraction.id;
             
             sectionContainer.innerHTML = `
                 <div class = "section">
@@ -101,15 +132,15 @@ async function checkAuthStatus() {
                         <div class = "paymentTitle">信用卡付款資訊</div>
                         <div class = "paymentFormDiv">
                             <span class = "paymentFormSubtitle">卡片號碼：</span>
-                            <input class = "paymentFormInput" id = "paymentFormCardNumInput" type = "text" inputmode="numeric" placeholder="xxxx xxxx xxxx xxxx" maxlength="19">
+                            <div class = "tpfieId" id = "card-number"></div>
                         </div>
                         <div class = "paymentFormDiv">
                             <span class = "paymentFormSubtitle">過期時間：</span>
-                            <input class = "paymentFormInput" id = "paymentFormTimeOutInput" type="text"  placeholder="MM / YY" inputmode="numeric" maxlength="7" >
+                            <div class = "tpfieId" id = "card-expiration-date"></div>
                         </div>
                         <div class = "paymentFormDiv">
                             <span class = "paymentFormSubtitle">驗證密碼：</span>
-                            <input class = "paymentFormInput" id = "paymentFormPwdInput" type = "text" placeholder="CCV" inputmode="numeric" maxlength="3">
+                            <div class = "tpfieId" id = "card-ccv"></div>
                         </div>
                     </div>
 
@@ -123,6 +154,8 @@ async function checkAuthStatus() {
                     </div>
                 </div>
             `
+
+            initTapPay();
 
             const trashIcon = document.querySelector(".trashIcon");
 
@@ -138,22 +171,134 @@ async function checkAuthStatus() {
                 console.log(result);
                 window.location.reload();
             })
-
-            const paymentFormCardNumInput = document.getElementById("paymentFormCardNumInput");
-            paymentFormCardNumInput.addEventListener("input", function(event){
-                if(event.inputType === "deleteContentBackward"){
-                    return
-                }
-                const value = event.target.value;
-                console.log('目前輸入內容：', value);
-                if(value.length === 4 || value.length === 9 || value.length === 14){
-                    paymentFormCardNumInput.value = value + " ";
-                }
-            });
-
-    } catch (error) {
-        console.log(error);
-    }
 }
-checkAuthStatus();
+
+function initTapPay(){
+    TPDirect.setupSDK(171064, 'app_LmWfZd4qMvpxcJ9zk5h7QC3StH6yQFpGsq34FAgZAXfX1t5zHrMhzdRas3tv', 'sandbox');
+
+    let fields = {
+        number: {
+            // css selector
+            element: document.getElementById('card-number') ,
+            placeholder: '**** **** **** ****'
+        },
+        expirationDate: {
+            // DOM object
+            element: document.getElementById('card-expiration-date'),
+            placeholder: 'MM / YY'
+        },
+        ccv: {
+            element: document.getElementById('card-ccv'),
+            placeholder: 'ccv'
+        }
+    }
+
+    TPDirect.card.setup({
+        fields: fields,
+        styles: {
+            'input': {
+                'color' : '#000000',
+                'font-weight' : '500'
+            },
+            'input.ccv': {
+                'font-size': '16px'
+            },
+            'input.expiration-date': {
+                'font-size': '16px'
+            },
+            'input.card-number': {
+                'font-size': '16px'
+            },
+            //輸入時文字的樣式
+            ':focus': {
+                'color': 'black'
+            },
+            //輸入格式正確時的樣式
+            '.valid': {
+                'color': 'green'
+            },
+            //輸入格式錯誤時的樣式
+            '.invalid': {
+                'color': 'red'
+            }
+        }
+    })
+
+    const confirmBtn = document.querySelector(".confirmBtn");
+    
+    confirmBtn.addEventListener("click", function(){
+        const tappayStatus = TPDirect.card.getTappayFieldsStatus();
+        
+        if (tappayStatus.canGetPrime === false){
+            alert('can not get prime')
+            return;
+        }
+        
+        TPDirect.card.getPrime(async function(result){
+            if (result.status !== 0) {
+                console.error('getPrime error',result.msg);
+                return;
+            }
+            const prime = result.card.prime;
+
+            userName = document.getElementById("contactFormNameInput").value;
+            userEmail = document.getElementById("contactFormEmail").value;
+            userPhone = document.getElementById("contactFormPhone").value;
+            const token = localStorage.getItem("jwt_token");
+
+            const ordersData = {"prime":prime,
+                                "order":{
+                                    "price":attractionPrice,
+                                    "trip":{
+                                        "attraction":{
+                                            "id":attractionId,
+                                            "name":attractionName,
+                                            "address":attractionAddress,
+                                            "image":attractionImage
+                                        },
+                                        "date":attractionDate,
+                                        "time":attractionTime
+                                    },
+                                    "contact":{
+                                        "name":userName,
+                                        "email":userEmail,
+                                        "phone":userPhone
+                                    }
+                                }
+                            };
+
+            const response = await fetch("/api/orders", {
+                method:"POST",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body:JSON.stringify(ordersData)
+            })
+            const orderReslut = await response.json()
+            const isPaySuccess = orderReslut["data"]["payment"]["status"];
+            const ordser_msg = orderReslut["data"]["payment"]["message"];
+            const orderNumber = orderReslut["data"]["number"];
+
+            if(isPaySuccess === 0){
+            const delBookingResponse = await fetch("/api/booking", {
+                method:"DELETE",
+                headers:{
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+            delBookingResult = await delBookingResponse.json()
+            console.log(delBookingResult);
+
+            window.location.href = `/thankyou?number=${orderNumber}`;
+            }else{
+                alert(`${ordser_msg} 付款失敗，請重試`)
+            }
+
+
+        });
+    });
+}
+
+initPage();
 
