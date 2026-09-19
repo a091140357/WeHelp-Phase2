@@ -1,0 +1,7 @@
+{
+  "name": "taipei-day-trip",
+  "version": "0.1.0",
+  "description": "台北一日遊景點查詢與行程預訂助理",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
