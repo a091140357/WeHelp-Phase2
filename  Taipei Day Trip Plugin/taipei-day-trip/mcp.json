@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "taipei-day-trip": {
+      "type": "http",
+      "url": "http://13.158.197.73:8000/mcp",
+      "headers": {
+        "Authorization": "Bearer c6f6a5c32920254ac5f9b87f5d8ac1db577407ec0b74fbc392c6edd85a0f5176"
+      }
+    }
+  }
+}

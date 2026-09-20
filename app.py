@@ -13,6 +13,9 @@ import jwt
 import datetime
 from auth import *
 import random, httpx
+import hashlib, time
+import contextvars
+from fastmcp import FastMCP
 
 load_dotenv()
 
@@ -38,6 +41,142 @@ except Exception as e:
 
 app=FastAPI()
 
+mcp_user_id_var = contextvars.ContextVar("mcp_user_id", default=None)
+
+mcp = FastMCP("taipei-day-trip")
+
+@mcp.tool(
+	name = "搜尋台北市景點",
+	description = "透過關鍵字和捷運站名搜尋台北市一日旅遊的景點"
+)
+def search_attractions_for_mcp(keyword: str) -> dict:
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary=True)
+
+		cursor.execute("select id, name, description from attractions where mrt = %s or name like %s", (keyword, f"%{keyword}%"))
+		data = cursor.fetchall()
+
+		return {"data":data}
+
+	except Exception as e:
+		print("搜尋失敗")
+		return {"error":True}
+			
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+
+@mcp.tool(
+	name = "預定景點導覽行程",
+	description = "根據景點編號、日期、時間、價格，預定一個景點導覽行程"
+)
+def create_booking(attractionId:int,date:str,time:str) ->dict:
+	user_id = mcp_user_id_var.get()
+	
+	if time == "morning":
+		price = 2000
+	elif time == "afternoon":
+		price = 2500
+	else:
+		return {"error": True, "message": "時間參數只能是 morning 或 afternoon"}
+
+	if not user_id:
+		return {"error": True, "message": "找不到使用者"}
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("DELETE FROM userBookingData WHERE user_id = %s", (user_id,))
+		cursor.execute("insert into userBookingData(user_id, attractionId, date, time, price) values (%s,%s,%s,%s,%s)",(user_id, attractionId, date, time, price))
+		connection.commit()
+		return {
+			"ok": True,
+			"message":"台北導覽行程，預定成功，請到 Booking Page URL 完成付款。"
+		}
+	except mysql.connector.IntegrityError:
+		return {"error": True, "message": "輸入資料格式錯誤"}
+	
+	except mysql.connector.Error as e:
+		return {"error": True, "message": f"資料庫發生錯誤:{e}"}
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+mcp_app = mcp.http_app(path='/mcp')
+
+app = FastAPI(lifespan=mcp_app.lifespan)
+
+app.router.routes.extend(mcp_app.routes)
+
+@app.middleware("http")
+async def verify_mcp_token_middleware(request:Request, call_next):
+	if request.url.path.startswith("/mcp"):
+		auth_header = request.headers.get("Authorization")
+
+		if not auth_header or not auth_header.startswith("Bearer "):
+			return JSONResponse(
+				status_code = 401,
+				content = {
+					"error":True,
+					"message":"mcp token無效"
+			   }
+			)
+		
+		token = auth_header.split(" ")[1]
+
+		cursor = None
+		connection = None
+
+		try:
+			connection = db_pool.get_connection()
+			cursor = connection.cursor(dictionary = True)
+			cursor.execute("select user_id from mcp_token where mcp_token = %s", (token,))
+			user_data = cursor.fetchone()
+			
+
+			if not user_data:
+				print("token不存在")
+				return JSONResponse(
+					status_code = 401,
+					content = {
+						"error":True,
+						"message":"找不到此 mcp token"
+					}
+				)
+			else:
+				mcp_user_id_var.set(user_data["user_id"])
+
+		except Exception as e:
+			return JSONResponse(
+				status_code = 500,
+				content = {
+					"error":True,
+					"message":str(e)
+				})
+		finally:
+			if cursor is not None:
+				cursor.close()
+			if connection is not None and connection.is_connected():
+				connection.close()
+
+	response = await call_next(request)
+
+	return response
+		
+
 # Static Pages (Never Modify Code in this Block)
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
@@ -51,6 +190,9 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
 	return FileResponse("./static/thankyou.html", media_type="text/html")
+@app.get("/member", include_in_schema=False)
+async def thankyou(request: Request):
+	return FileResponse("./static/member.html", media_type="text/html")
 
 
 @app.get("/api/attractions")
@@ -439,7 +581,6 @@ def get_booking_status(user_info:dict = Depends(verify_user)):
 		if connection is not None and connection.is_connected():
 			connection.close()
 
-
 class Create_booking(BaseModel):
 	attractionId:int
 	date:str
@@ -748,6 +889,121 @@ def get_order_data(
 				"status":order_data["status"]
 			}
 		}
+	
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+@app.get("/api/mcptoken")
+def get_mcp_token(
+		request:Request,
+		user_info:dict = Depends(verify_user)
+	):
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+			}
+		)
+	
+	user_id = user_info["data"]["id"]
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("select * from mcp_token where user_id = %s",(user_id,))
+		data = cursor.fetchone()
+		
+		if data:
+			user_mcp_token = data["mcp_token"]
+			return{
+				"ok":True,
+				"mcp_token":user_mcp_token
+				}
+		else:
+			return{
+				"ok":True,
+				"mcp_token":None
+				}
+
+	except mysql.connector.Error as e:
+		return JSONResponse(
+			status_code = 500,
+			content = {
+				"error":True,
+				"message":f"伺服器發生錯誤:{e}"
+			}
+		)
+	
+	finally:
+		if cursor is not None:
+			cursor.close()
+		if connection is not None and connection.is_connected():
+			connection.close()
+
+@app.put("/api/mcptoken")
+def update_mcp_token(
+		request:Request,
+		user_info:dict = Depends(verify_user)
+	):
+
+	if not user_info:
+		return JSONResponse(
+			status_code = 403,
+			content = {
+				"error":True,
+			  	"message":"還未登入，請先登入"
+			}
+		)
+
+	user_id = user_info["data"]["id"]
+	print(user_id)
+
+	now_time = str(time.time_ns())
+	original_text = f"{user_id}-{now_time}"
+	m = hashlib.sha256()
+	m.update(original_text.encode("utf-8"))
+	mcp_token = m.hexdigest()
+
+	print(mcp_token)
+
+	connection = None
+	cursor = None
+
+	try:
+		connection = db_pool.get_connection()
+		cursor = connection.cursor(dictionary = True)
+		cursor.execute("select * from mcp_token where user_id = %s",(user_id,))
+		user_mcp_token = cursor.fetchone()
+
+		if not user_mcp_token:
+			cursor.execute("insert into mcp_token(user_id, mcp_token) values(%s, %s)",(user_id,mcp_token))
+
+		else:
+			cursor.execute("update mcp_token set mcp_token = %s where user_id = %s",(mcp_token,user_id))
+
+		connection.commit()
+
+		return {
+			"ok":True,
+			"mcp_token":mcp_token
+			}
 	
 	except mysql.connector.Error as e:
 		return JSONResponse(
